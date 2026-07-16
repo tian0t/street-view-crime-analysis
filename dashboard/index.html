@@ -1,6 +1,19 @@
 <!doctype html>
 <html lang="en" data-theme="dark">
   <head>
+    <script>
+      (function() {
+        const saved = localStorage.getItem('sv-crime-theme');
+        const systemPrefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        if (saved) {
+          document.documentElement.dataset.theme = saved;
+        } else if (systemPrefersLight) {
+          document.documentElement.dataset.theme = 'light';
+        } else {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Street View Crime Analysis – London | MSc Urban Data Science</title>

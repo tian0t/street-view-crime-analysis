@@ -153,6 +153,10 @@ function updateCorrelationChart() {
   const x = rows.map((r) => r.value).reverse();
   const y = rows.map((r) => r.feature).reverse();
   
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const markerLineColor = isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)";
+  const zeroLineColor = isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.3)";
+
   // Custom color scale for positive vs negative correlation
   const colors = x.map((v) => (v >= 0 ? "rgba(255, 149, 0, 0.85)" : "rgba(52, 199, 89, 0.85)"));
   
@@ -160,12 +164,12 @@ function updateCorrelationChart() {
     type: "bar",
     orientation: "h",
     x, y,
-    marker: { color: colors, line: { width: 1, color: "rgba(255,255,255,0.2)" } },
+    marker: { color: colors, line: { width: 1, color: markerLineColor } },
     customdata: rows.map((r) => [r.p, r.n]).reverse(),
     hovertemplate: "<b>%{y}</b><br>Correlation: %{x:.3f}<br>p-value: %{customdata[0]:.2e}<br>Sample Size: %{customdata[1]}<extra></extra>",
   }], {
     ...getPlotLayout(),
-    xaxis: { ...(getPlotLayout()).xaxis, title: "Correlation Coefficient", zeroline: true, zerolinecolor: "rgba(255,255,255,0.3)", zerolinewidth: 1.5 },
+    xaxis: { ...(getPlotLayout()).xaxis, title: "Correlation Coefficient", zeroline: true, zerolinecolor: zeroLineColor, zerolinewidth: 1.5 },
     yaxis: { ...(getPlotLayout()).yaxis, title: "" },
   }, plotCfg);
   
@@ -236,6 +240,8 @@ function updateTimeChart() {
       // Exclude partial years (e.g. a year with fewer than 12 months of data) —
       // otherwise they'd render as a misleading 0% bar or a false swing.
       const yoyData = data.time_series.yoy.filter(d => !d.partial && d.change_pct !== null);
+      const isLight = document.documentElement.dataset.theme === 'light';
+      const yoyLineColor = isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.15)";
       traces.push({
         name: "YoY Growth",
         type: "bar",
@@ -244,30 +250,36 @@ function updateTimeChart() {
         yaxis: "y2",
         marker: {
           color: yoyData.map(d => d.change_pct >= 0 ? "rgba(255, 59, 48, 0.4)" : "rgba(52, 199, 89, 0.4)"),
-          line: { width: 1, color: "rgba(255,255,255,0.15)" }
+          line: { width: 1, color: yoyLineColor }
         },
         hovertemplate: "YoY Change: %{y:+.2f}%<extra></extra>"
       });
     }
   }
 
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const legendColor = isLight ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.5)";
+  const labelColor = isLight ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.4)";
+  const secondaryGridColor = isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.02)";
+  const secondaryZeroColor = isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.15)";
+
   // Define layout with potential secondary y-axis
   const layout = {
     ...getPlotLayout(),
     xaxis: { ...(getPlotLayout()).xaxis, title: isGranular ? "Month" : "Year" },
     yaxis: { ...(getPlotLayout()).yaxis, title: "Crime Incidents Count" },
-    legend: { orientation: "h", y: -0.2, font: { color: "rgba(255,255,255,0.5)" } }
+    legend: { orientation: "h", y: -0.2, font: { color: legendColor } }
   };
 
   if (effectiveShowYoY && !isGranular && key === "TOTAL") {
     layout.yaxis2 = {
       title: "YoY % Change",
-      titlefont: { color: "rgba(255,255,255,0.4)" },
-      tickfont: { color: "rgba(255,255,255,0.4)" },
+      titlefont: { color: labelColor },
+      tickfont: { color: labelColor },
       overlaying: "y",
       side: "right",
-      gridcolor: "rgba(255,255,255,0.02)",
-      zerolinecolor: "rgba(255,255,255,0.15)",
+      gridcolor: secondaryGridColor,
+      zerolinecolor: secondaryZeroColor,
     };
   }
 
@@ -279,13 +291,16 @@ function renderSeasonality() {
   const s = data.time_series.seasonality;
   const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const barTextColor = isLight ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.5)";
+
   Plotly.react("seasonalityChart", [{
     type: "heatmap",
     z: s.matrix,
     x: monthLabels,
     y: s.years,
     colorscale: "Viridis",
-    colorbar: { title: "Crimes", tickfont: { color: "rgba(255,255,255,0.5)" } },
+    colorbar: { title: "Crimes", tickfont: { color: barTextColor } },
     hovertemplate: "Year %{y}, %{x}<br>Crime Volume: %{z:,.0f}<extra></extra>",
   }], {
     ...getPlotLayout(),
@@ -297,6 +312,9 @@ function renderSeasonality() {
 function renderCorrelationHeatmap() {
   if (!document.getElementById("corrHeatmap")) return;
   const h = data.corr_heatmap;
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const barTextColor = isLight ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.5)";
+
   Plotly.react("corrHeatmap", [{
     type: "heatmap",
     z: h.matrix,
@@ -306,7 +324,7 @@ function renderCorrelationHeatmap() {
     reversescale: true,
     zmin: -0.3,
     zmax: 0.3,
-    colorbar: { tickfont: { color: "rgba(255,255,255,0.5)" } },
+    colorbar: { tickfont: { color: barTextColor } },
     hovertemplate: "Feature %{y}<br>Crime %{x}<br>r = %{z:.3f}<extra></extra>",
   }], {
     ...getPlotLayout(),
@@ -319,6 +337,9 @@ function renderCorrelationHeatmap() {
 function renderFeatureCorrMatrix() {
   if (!document.getElementById("featureCorrChart")) return;
   const m = data.feature_corr_matrix;
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const barTextColor = isLight ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.5)";
+
   Plotly.react("featureCorrChart", [{
     type: "heatmap",
     z: m.matrix,
@@ -327,7 +348,7 @@ function renderFeatureCorrMatrix() {
     colorscale: "RdBu",
     reversescale: true,
     zmin: -1, zmax: 1,
-    colorbar: { tickfont: { color: "rgba(255,255,255,0.5)" } },
+    colorbar: { tickfont: { color: barTextColor } },
     hovertemplate: "%{y} × %{x}<br>Pearson r = %{z:.3f}<extra></extra>",
   }], {
     ...getPlotLayout(),
@@ -360,11 +381,14 @@ function renderZones() {
 function renderDistribution() {
   if (!document.getElementById("distChart")) return;
   const rows = data.function_distribution.slice(0, 10);
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const markerLineColor = isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)";
+
   Plotly.react("distChart", [{
     type: "bar",
     x: rows.map((r) => r.function),
     y: rows.map((r) => r.count),
-    marker: { color: "#007aff", opacity: 0.8, line: {width: 1, color: "rgba(255,255,255,0.2)"} },
+    marker: { color: "#007aff", opacity: 0.8, line: {width: 1, color: markerLineColor} },
     hovertemplate: "%{x}<br>LSOAs: %{y}<extra></extra>",
   }], {
     ...getPlotLayout(),
@@ -383,15 +407,19 @@ function updateZoneCrimeChart() {
   const q25 = z.map((r) => r[c].q25);
   const q75 = z.map((r) => r[c].q75);
   
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const markerLineColor = isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)";
+  const errColor = isLight ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.5)";
+
   Plotly.react("zoneCrimeChart", [{
     type: "bar",
     x, y: mean,
-    marker: { color: "#ff9500", opacity: 0.85, line: {width:1, color:"rgba(255,255,255,0.2)"} },
+    marker: { color: "#ff9500", opacity: 0.85, line: {width:1, color: markerLineColor} },
     error_y: {
       type: "data", symmetric: false,
       array: q75.map((v, i) => Math.max(v - mean[i], 0)),
       arrayminus: q25.map((v, i) => Math.max(mean[i] - v, 0)),
-      color: "rgba(255,255,255,0.5)",
+      color: errColor,
       thickness: 1.5,
     },
     hovertemplate: "Zone: %{x}<br>Mean Crime Rate: %{y:.3f} per 1000<extra></extra>",
@@ -412,6 +440,12 @@ function updateEvidenceChart() {
   const maxAbsCorr = Math.max(...rows.map(r => Math.abs(r.corr)), 0.1);
   const sizes = rows.map(r => (Math.abs(r.corr) / maxAbsCorr) * 20 + 8);
 
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const textColor = isLight ? "rgba(0,0,0,0.75)" : "rgba(255,255,255,0.85)";
+  const markerBorderColor = isLight ? "#000" : "#fff";
+  const lineColor1 = isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.25)";
+  const lineColor2 = isLight ? "rgba(0,0,0,0.3)" : "rgba(255, 255, 255, 0.4)";
+
   Plotly.react("evidenceChart", [{
     type: "scatter",
     mode: "markers+text",
@@ -423,9 +457,9 @@ function updateEvidenceChart() {
       size: sizes,
       color: rows.map((r) => (r.corr >= 0 ? "rgba(255, 149, 0, 0.8)" : "rgba(52, 199, 89, 0.8)")),
       opacity: 0.8,
-      line: { width: 1.5, color: "#fff" },
+      line: { width: 1.5, color: markerBorderColor },
     },
-    textfont: {color: "rgba(255,255,255,0.85)", size: 10},
+    textfont: {color: textColor, size: 10},
     hovertemplate: "Feature: <b>%{text}</b><br>Correlation: %{x:.3f}<br>-log10(p): %{y:.2f}<br>LSOAs: %{marker.size}<extra></extra>",
   }], {
     ...getPlotLayout(),
@@ -433,8 +467,8 @@ function updateEvidenceChart() {
     yaxis: { ...(getPlotLayout()).yaxis, title: "Statistical Significance: -log10(p-value)" },
     shapes: [
       // Dotted lines representing significance thresholds (p < 0.05 is ~1.30, p < 0.01 is 2.00)
-      { type: "line", x0: -0.4, x1: 0.4, y0: 1.301, y1: 1.301, line: { color: "rgba(255,255,255,0.25)", width: 1, dash: "dash" } },
-      { type: "line", x0: -0.4, x1: 0.4, y0: 2, y1: 2, line: { color: "rgba(255, 255, 255, 0.4)", width: 1, dash: "dot" } }
+      { type: "line", x0: -0.4, x1: 0.4, y0: 1.301, y1: 1.301, line: { color: lineColor1, width: 1, dash: "dash" } },
+      { type: "line", x0: -0.4, x1: 0.4, y0: 2, y1: 2, line: { color: lineColor2, width: 1, dash: "dot" } }
     ],
   }, plotCfg);
 }
@@ -446,13 +480,16 @@ function renderZoneTests() {
   const x = rows.map((r) => (r.p == null ? 0 : -Math.log10(Math.max(r.p, 1e-300))));
   const hVals = rows.map((r) => r.H ?? 0);
   
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const markerLineColor = isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.2)";
+
   Plotly.react("zoneTestChart", [{
     type: "bar",
     orientation: "h",
     x: x.slice().reverse(),
     y: y.slice().reverse(),
     customdata: hVals.slice().reverse(),
-    marker: { color: "rgba(191, 90, 242, 0.8)", line:{width:1, color:"rgba(255,255,255,0.2)"} },
+    marker: { color: "rgba(191, 90, 242, 0.8)", line:{width:1, color: markerLineColor} },
     hovertemplate: "%{y}<br>-log10(p): %{x:.2f}<br>Kruskal H: %{customdata:.2f}<extra></extra>",
   }], {
     ...getPlotLayout(),
@@ -529,6 +566,11 @@ function setupSimulator() {
 
     if (!draw || !document.getElementById("simChart")) return;
     const sorted = contrib.slice().sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
+    const isLight = document.documentElement.dataset.theme === 'light';
+    const gaugeBg = isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.05)";
+    const gaugeBorder = isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.2)";
+    const gaugeTitleColor = isLight ? "rgba(0,0,0,0.75)" : "rgba(255,255,255,0.85)";
+
     Plotly.react("simChart", [
       {
         type: "indicator",
@@ -538,11 +580,11 @@ function setupSimulator() {
         gauge: {
           axis: { range: [Math.max(0, model.y_mean * 0.55), model.y_mean * 1.45] },
           bar: { color: "#007aff" },
-          bgcolor: "rgba(255,255,255,0.05)",
-          bordercolor: "rgba(255,255,255,0.2)",
+          bgcolor: gaugeBg,
+          bordercolor: gaugeBorder,
         },
         domain: { x: [0, 0.38], y: [0, 1] },
-        title: { text: prettyCrime(target), font: { color: "rgba(255,255,255,0.85)", size: 14 } },
+        title: { text: prettyCrime(target), font: { color: gaugeTitleColor, size: 14 } },
       },
       {
         type: "bar",
@@ -644,14 +686,21 @@ function initMap() {
     return;
   }
   const payload = window.MAP_PAYLOAD;
-  const map = L.map("mapCanvas", { zoomControl: true }).setView([51.5072, -0.12], 10);
+  const isLight = document.documentElement.dataset.theme === 'light';
   
-  // Use CARTO DB Dark Matter tiles
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+  const map = L.map("mapCanvas", { zoomControl: true }).setView([51.5072, -0.12], 10);
+  window.map = map;
+  
+  const tileUrl = isLight 
+    ? "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+    : "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+  
+  const mapTileLayer = L.tileLayer(tileUrl, {
     attribution: "&copy; OpenStreetMap &copy; CARTO",
     subdomains: "abcd",
     maxZoom: 19,
   }).addTo(map);
+  window.mapTileLayer = mapTileLayer;
 
   const q = payload.crime_quantiles || [3.2, 3.6, 4.0, 4.6];
   const crimeColors = ["#1d3a5b", "#245c7a", "#2f8a8f", "#64b07a", "#ff9500"];
@@ -670,7 +719,8 @@ function initMap() {
   };
 
   function colorByCrime(v) {
-    if (v == null || Number.isNaN(v)) return "rgba(255,255,255,0.05)";
+    const activeIsLight = document.documentElement.dataset.theme === 'light';
+    if (v == null || Number.isNaN(v)) return activeIsLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)";
     if (v <= q[0]) return crimeColors[0];
     if (v <= q[1]) return crimeColors[1];
     if (v <= q[2]) return crimeColors[2];
@@ -681,6 +731,8 @@ function initMap() {
   function renderLegend(mode) {
     if (!mapLegend) return;
     let items = [];
+    const activeIsLight = document.documentElement.dataset.theme === 'light';
+    const noDataColor = activeIsLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)";
     if (mode === "crime") {
       items = [
         [crimeColors[0], `≤ ${q[0].toFixed(2)}`],
@@ -690,7 +742,7 @@ function initMap() {
         [crimeColors[4], `> ${q[3].toFixed(2)}`],
       ];
     } else if (mode === "coverage") {
-      items = [["#007aff", "Has merged data"], ["rgba(255,255,255,0.05)", "No merged data"]];
+      items = [["#007aff", "Has merged data"], [noDataColor, "No merged data"]];
     } else {
       items = Object.entries(fnPalette).map(([k, v]) => [v, k]);
     }
@@ -701,15 +753,18 @@ function initMap() {
     style: (f) => {
       const p = f.properties || {};
       const mode = mapModeSelect.value;
+      const activeIsLight = document.documentElement.dataset.theme === 'light';
+      const noDataColor = activeIsLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)";
+      const borderColor = activeIsLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.1)";
       const fillColor = mode === "crime" ? colorByCrime(p.total_crime) :
-                        mode === "coverage" ? (p.has_data ? "#007aff" : "rgba(255,255,255,0.05)") :
+                        mode === "coverage" ? (p.has_data ? "#007aff" : noDataColor) :
                         fnPalette[String(p.predicted_function || "unknown").toLowerCase()] || fnPalette.unknown;
-      return { color: "rgba(255,255,255,0.1)", weight: 0.5, fillColor, fillOpacity: p.has_data ? 0.7 : 0.2 };
+      return { color: borderColor, weight: 0.5, fillColor, fillOpacity: p.has_data ? 0.7 : 0.2 };
     },
     onEachFeature: (feature, layer) => {
       const p = feature.properties || {};
       layer.bindPopup(`
-        <div style="font-family: var(--font-family); color: #fff;">
+        <div style="font-family: var(--font-family); color: var(--text-primary);">
           <b>${p.LSOA11NM || "LSOA"}</b><br/>
           Function: ${p.predicted_function || "N/A"}<br/>
           Total crime rate: ${p.total_crime == null ? "N/A" : Number(p.total_crime).toFixed(3)}
@@ -717,11 +772,16 @@ function initMap() {
       `);
     },
   }).addTo(map);
+  window.lsoaLayer = lsoaLayer;
 
   const pts = payload.coverage_points || [];
+  const ptFillColor = isLight ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.5)";
   const coverageLayer = L.layerGroup(pts.map((pt) =>
-    L.circleMarker([pt[1], pt[0]], { radius: 1, stroke: false, fillColor: "rgba(255,255,255,0.5)", fillOpacity: 0.5 })
+    L.circleMarker([pt[1], pt[0]], { radius: 1, stroke: false, fillColor: ptFillColor, fillOpacity: 0.5 })
   ));
+  window.coverageLayer = coverageLayer;
+  window.coverageToggle = coverageToggle;
+
   coverageLayer.addTo(map);
   map.fitBounds(lsoaLayer.getBounds(), { padding: [10, 10] });
 
@@ -814,6 +874,19 @@ function boot() {
     return;
   }
   
+  // Set theme from localStorage or system preference BEFORE rendering any charts
+  const html = document.documentElement;
+  const STORE = 'sv-crime-theme';
+  const saved = localStorage.getItem(STORE);
+  const systemPrefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  if (saved) {
+    html.dataset.theme = saved;
+  } else if (systemPrefersLight) {
+    html.dataset.theme = 'light';
+  } else {
+    html.dataset.theme = 'dark';
+  }
+  
   initNav();
   renderMeta();
   renderFindings();
@@ -857,10 +930,6 @@ function initTheme() {
   const btn    = document.getElementById('themeToggle');
   const STORE  = 'sv-crime-theme';
 
-  // Restore saved preference
-  const saved = localStorage.getItem(STORE);
-  if (saved) html.dataset.theme = saved;
-
   function rerenderAllCharts() {
     // Re-run all chart render functions so they pick up new getPlotLayout() colors
     updateCorrelationChart();
@@ -875,6 +944,29 @@ function initTheme() {
     const simTarget = document.getElementById('simTargetSelect');
     if (simTarget?.value) {
       simTarget.dispatchEvent(new Event('change'));
+    }
+
+    // Refresh map layer and styles
+    if (window.map && window.mapTileLayer) {
+      const activeIsLight = html.dataset.theme === 'light';
+      const newUrl = activeIsLight 
+        ? "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        : "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+      window.mapTileLayer.setUrl(newUrl);
+
+      if (window.lsoaLayer) {
+        window.lsoaLayer.setStyle(window.lsoaLayer.options.style);
+      }
+
+      if (window.coverageLayer && window.coverageToggle?.checked) {
+        window.coverageLayer.remove();
+        const pts = window.MAP_PAYLOAD.coverage_points || [];
+        const fillColor = activeIsLight ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.5)";
+        window.coverageLayer = L.layerGroup(pts.map((pt) =>
+          L.circleMarker([pt[1], pt[0]], { radius: 1, stroke: false, fillColor, fillOpacity: 0.5 })
+        ));
+        window.coverageLayer.addTo(window.map);
+      }
     }
   }
 
