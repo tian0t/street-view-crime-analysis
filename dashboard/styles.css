@@ -716,6 +716,12 @@ select:focus {
   color: var(--text-secondary);
 }
 
+.inline-check:has(input:disabled) {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .inline-check input[type="checkbox"] {
   appearance: none;
   width: 18px;

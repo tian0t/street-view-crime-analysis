@@ -390,8 +390,20 @@ function updateCorrelationChart() {
 
 function updateTimeChart() {
   if (!timeSeriesSelect || !document.getElementById("timeChart")) return;
-  const key = timeSeriesSelect.value;
-  const isGranular = document.getElementById("timeResolutionToggle")?.checked;
+  const key = timeSeriesSelect.value || "TOTAL";
+  
+  // Disable monthly checkbox for non-TOTAL crime categories (dataset only contains annual stats by category)
+  const monthlyToggle = document.getElementById("timeResolutionToggle");
+  if (monthlyToggle) {
+    if (key !== "TOTAL") {
+      monthlyToggle.disabled = true;
+      monthlyToggle.checked = false;
+    } else {
+      monthlyToggle.disabled = false;
+    }
+  }
+
+  const isGranular = monthlyToggle?.checked;
   const showYoY = document.getElementById("timeYoYToggle")?.checked;
   const yoyToggle = document.getElementById("timeYoYToggle");
   const yoyLabel = document.getElementById("yoyToggleLabel");
