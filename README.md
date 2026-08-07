@@ -9,7 +9,7 @@
 [![Computer vision](https://img.shields.io/badge/Computer%20Vision-PyTorch%20%7C%20Transformers-EE4C2C?logo=pytorch&logoColor=white)](https://huggingface.co/)
 [![Dashboard](https://img.shields.io/badge/Frontend-Plotly%20%7C%20Leaflet-0D6EFD)](https://plotly.com/javascript/)
 
-An MSc Urban Data Science project examining how street-level environmental indicators and image-derived urban functions are associated with recorded crime across Greater London.
+An urban data science project aims to examine how street environment indicators and image-derived urban features relate to crime records in Greater London.
 
 **Quick links:** [Live dashboard](https://tian0t.github.io/street-view-crime-analysis/dashboard/) · [Data preparation notebook](./Part0_DataPrep_SVI.ipynb) · [Main analysis notebook](./Part1_Main_Analysis.ipynb) · [Practical briefing](./Practical%20Briefing.docx)
 
