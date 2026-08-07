@@ -291,7 +291,8 @@ function renderMeta() {
   const fmt = (v) => (v == null ? "N/A" : typeof v === "number" ? v.toLocaleString() : v);
   const cards = [
     ["Grid Centroids (50m)", fmt(m.grid_centers ?? m.grid_points_matched)],
-    ["Mapillary Images", fmt(m.mapillary_images ?? m.unique_images)],
+    ["Images Selected", fmt(m.mapillary_images ?? m.unique_images)],
+    ["Images Processed", fmt(m.processed_images)],
     ["Boundary-Filtered Samples", fmt(m.spatial_joined_samples ?? 150182)],
     ["Merged LSOAs", fmt(m.lsoa_merged)],
     ["Data Coverage", m.coverage_ratio != null ? formatPct(m.coverage_ratio) : "N/A"],
@@ -314,12 +315,12 @@ function renderFindings() {
   const m = data.scenario_models?.THEFT || { r2_train: 0.0886, r2_test: 0.0569 };
   
   const cards = [
-    { title: "Environmental Catalysts", desc: `Built-up density (features like building footprint and fence coverage) exhibits the strongest positive link with theft: <strong>${p.feature}</strong> (r=<strong>${p.value.toFixed(3)}</strong>, p=${p.p.toExponential(1)}). Dense environments create concealment and target-rich hotspots, facilitating spatial opportunities for property crimes.` },
-    { title: "Protective Deterrents", desc: `Visual openness (such as sky visibility and topographic spacing) acts as a citywide crime deterrent: <strong>${n.feature}</strong> (r=<strong>${n.value.toFixed(3)}</strong>, p=${n.p.toExponential(1)}). High sky-view visibility supports Jane Jacobs' "eyes on the street" natural surveillance.` },
-    { title: "Evidence Strength Tiers", desc: `Kruskal-Wallis and regression screenings identified <strong>${tier.strong ?? 0} Strong</strong> and <strong>${tier.moderate ?? 0} Moderate</strong> robust statistical associations between visual street features and crime rates, moving beyond generic citywide averages to reveal zone-specific environmental influences.` },
-    { title: "Spatial Variance H-Test", desc: `Kruskal H-Test confirms crime rates differ significantly across functional zones (H=<strong>${kw.H.toFixed(2)}</strong>, p=<strong>${kw.p.toExponential(1)}</strong>). Zone context shapes opportunity structure: theft concentrates in commercial cores, while vehicle offences peak at transit hubs.` },
-    { title: "Data Scope & Scale", desc: `Extracted 19 visual feature dimensions across <strong>150,654 images</strong> and matched them to <strong>3,525 Greater London LSOAs</strong>, achieving <strong>${(data.meta.coverage_ratio * 100).toFixed(1)}%</strong> of citywide neighborhood coverage, providing a highly representative regional analysis.` },
-    { title: "Model Generalization", desc: `Regression baseline achieves test R² of <strong>${(m.r2_test * 100).toFixed(2)}%</strong> and train R² of <strong>${(m.r2_train * 100).toFixed(2)}%</strong>. Visual features provide modest but statistically robust explanations. Greenery has contrasting roles, facilitating concealment in residential/commercial zones.` },
+    { title: "Positive Association", desc: `Built-up density, represented here by <strong>${p.feature}</strong>, has the strongest positive observed association with theft (r=<strong>${p.value.toFixed(3)}</strong>, p=${p.p.toExponential(1)}). This is an observational relationship, not evidence that the feature causes crime.` },
+    { title: "Negative Association", desc: `Visual openness, represented here by <strong>${n.feature}</strong>, has the strongest negative observed association with theft (r=<strong>${n.value.toFixed(3)}</strong>, p=${n.p.toExponential(1)}). The result should not be interpreted as a causal deterrent effect.` },
+    { title: "Evidence Thresholds", desc: `The dashboard reports thresholded correlation and zone-test results. These are exploratory associations; p-values are not adjusted for the many comparisons and should not be described as causal or robust effects.` },
+    { title: "Spatial Variance H-Test", desc: `Kruskal–Wallis tests compare crime-rate distributions across functional zones (THEFT: H=<strong>${kw.H.toFixed(2)}</strong>, p=<strong>${kw.p.toExponential(1)}</strong>). This indicates distributional differences, not why those differences occur.` },
+    { title: "Data Scope & Scale", desc: `The pipeline selected <strong>${(data.meta.mapillary_images ?? 0).toLocaleString()}</strong> images, successfully processed <strong>${(data.meta.processed_images ?? 0).toLocaleString()}</strong>, and spatially matched <strong>${(data.meta.spatial_joined_samples ?? 0).toLocaleString()}</strong> samples to <strong>${(data.meta.lsoa_merged ?? 0).toLocaleString()}</strong> LSOAs.` },
+    { title: "Model Generalization", desc: `The exploratory regression baseline achieves test R² of <strong>${(m.r2_test * 100).toFixed(2)}%</strong> and train R² of <strong>${(m.r2_train * 100).toFixed(2)}%</strong>. This is modest predictive performance and should not be read as a causal effect estimate.` },
   ];
   
   findingCards.innerHTML = cards.map((x, i) => `
@@ -640,6 +641,7 @@ function renderZones() {
         <div class="card-details">
           <table class="crime-table" style="width:100%; border-collapse:collapse; margin-top:0.25rem;">
             <tbody>
+              <tr><td colspan="2" style="font-size:0.7rem; color:var(--text-secondary); padding-bottom:0.2rem;">Mean annual rate per 1,000 residents</td></tr>
               ${tableRows}
             </tbody>
           </table>
@@ -680,13 +682,13 @@ function renderDistribution() {
 
 function getCrimeDescription(crime) {
   const descriptions = {
-    "THEFT": "<strong>Theft</strong> exhibits the highest volume, concentrated heavily in <strong>Commercial</strong> zones due to shoplifting and high foot traffic. Residential zones remain low and uniform.",
-    "ROBBERY": "<strong>Robbery</strong> occurs predominantly in <strong>Commercial</strong> and transit hubs, showing high variance and indicating a strong correlation with evening foot traffic densities.",
-    "BURGLARY": "<strong>Burglary</strong> rates are more evenly distributed but show distinct residential peaks, where quiet <strong>Residential</strong> streets provide target accessibility.",
+    "THEFT": "<strong>Theft</strong> has the highest mean rate in this comparison and is more elevated in <strong>Commercial</strong> zones. This describes an observed spatial difference, not a causal mechanism.",
+    "ROBBERY": "<strong>Robbery</strong> is more elevated in <strong>Commercial</strong> and transportation zones in this sample, with substantial within-zone variation.",
+    "BURGLARY": "<strong>Burglary</strong> is more evenly distributed but shows variation across functional zones; the chart does not identify a causal explanation.",
     "VEHICLE OFFENCES": "<strong>Vehicle Offences</strong> show strong association with <strong>Workplace/Mixed</strong> and residential perimeter streets. Open parking structures and road accessibility act as key environmental catalysts.",
-    "DRUG OFFENCES": "<strong>Drug Offences</strong> exhibit local hotspots in <strong>Commercial</strong> areas and alleyways. Visual indicators of low natural surveillance correlate strongly with arrest locations.",
+    "DRUG OFFENCES": "<strong>Drug Offences</strong> show higher local rates in some <strong>Commercial</strong> areas. These are observed associations with recorded incidents, not direct effects of visual features.",
     "POSSESSION OF WEAPONS": "<strong>Possession of Weapons</strong> is highly localized, tracking high-density commercial zones. Statistical variance is high, indicating localized policing hotspots.",
-    "PUBLIC ORDER OFFENCES": "<strong>Public Order</strong> violations are prevalent in active <strong>Commercial</strong> cores. Alcohol outlet density and public transit stations represent primary spatial predictors.",
+    "PUBLIC ORDER OFFENCES": "<strong>Public Order</strong> offences are more prevalent in active <strong>Commercial</strong> cores in this sample. The dashboard does not control for alcohol outlet density, transit use, or policing.",
     "ARSON AND CRIMINAL DAMAGE": "<strong>Criminal Damage & Arson</strong> exhibits stable averages across both <strong>Residential</strong> and mixed zones, showing a moderate correlation with indicators of physical disorder.",
     "MISCELLANEOUS CRIMES AGAINST SOCIETY": "<strong>Miscellaneous Crimes</strong> show relative stability across zones, with slight elevations in commercial/industrial zones due to regulatory inspections."
   };
@@ -840,7 +842,7 @@ function setupSimulator() {
 
   function computePrediction(target, draw = true) {
     const model = models[target];
-    let zsum = 0;
+    let zsum = model.intercept_std || 0;
     const contrib = [];
     model.features.forEach((f, i) => {
       const el = document.getElementById(`sim_${i}`);

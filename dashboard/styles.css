@@ -429,10 +429,10 @@ h1 {
   gap: 1.5rem;
 }
 
-/* Metrics Grid - Perfect 6-column grid for Hero metrics */
+/* Metrics Grid - Keep all seven hero metrics aligned on wide screens */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 1rem;
 }
 
