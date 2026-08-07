@@ -17,7 +17,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Street View Crime Analysis – London | MSc Urban Data Science</title>
-    <meta name="description" content="Interactive analysis of crime patterns in London using environmental features derived from 150,654 street-view images across 3,525 LSOAs. MSc Urban Data Science dissertation dashboard.">
+    <meta name="description" content="Interactive analysis of crime patterns in London using environmental features derived from 150,654 selected and 150,653 successfully processed street-view images across 3,525 LSOAs. MSc Urban Data Science dissertation dashboard.">
     <meta property="og:title" content="Street View Crime Analysis — London Dashboard">
     <meta property="og:description" content="Exploring how the physical built environment relates to crime across Greater London, using computer vision on street-view imagery and MPS crime statistics.">
     <meta property="og:type" content="website">
@@ -78,7 +78,7 @@
           <p class="eyebrow">Academic Research Showcase</p>
           <h1 id="hero-title">Street View Data for<br />Urban Crime Pattern Analysis</h1>
           <p class="lead" style="text-wrap: balance;">
-            Crime statistics tell us <em>where</em> crime happens. Street-level imagery reveals <em>why</em>. This research quantifies how the physical character of urban space — visibility, land use, vegetation, and built form — shapes crime risk across <strong class="text-highlight">3,525</strong> London neighbourhoods.
+            Crime statistics describe <em>where</em> recorded crime occurs. Street-level imagery provides environmental indicators for examining observed associations with crime across <strong class="text-highlight">3,525</strong> London neighbourhoods.
           </p>
           <div id="metaCards" class="metrics-grid"></div>
         </div>
@@ -105,12 +105,12 @@
             <article class="pipeline-card">
               <p class="step-number">Step 01</p>
               <h4>Data Extraction & Preprocessing</h4>
-              <p>Generated a regular <strong class="text-highlight">50m x 50m</strong> grid across Greater London (<strong class="text-highlight">629,375</strong> centers). Fetched <strong class="text-highlight">150,654</strong> optimal street-level images via Mapillary API.</p>
+              <p>Generated a regular <strong class="text-highlight">50m x 50m</strong> grid across Greater London (<strong class="text-highlight">629,375</strong> centers). Selected <strong class="text-highlight">150,654</strong> street-level images via the Mapillary API.</p>
             </article>
             <article class="pipeline-card">
               <p class="step-number">Step 02</p>
               <h4>Spatial Joining & LSOA Alignment</h4>
-              <p>Mapped coordinates to London Lower Layer Super Output Areas (LSOAs), matching <strong class="text-highlight">150,182</strong> visual samples across boundaries with GIS centroids.</p>
+              <p>Mapped coordinates to London Lower Layer Super Output Areas (LSOAs), matching <strong class="text-highlight">150,182</strong> successfully processed visual samples to boundaries.</p>
             </article>
             <article class="pipeline-card">
               <p class="step-number">Step 03</p>
@@ -120,7 +120,7 @@
             <article class="pipeline-card">
               <p class="step-number">Step 04</p>
               <h4>Statistical Inference</h4>
-              <p>Aggregated features to LSOA level (<strong class="text-highlight">70.7%</strong> data coverage) and executed Pearson/Spearman correlation and Kruskal-Wallis H tests.</p>
+              <p>Aggregated features to LSOA level (<strong class="text-highlight">70.7%</strong> of the crime-record LSOA base) and reported Pearson/Spearman associations plus exploratory Kruskal–Wallis tests.</p>
             </article>
             <article class="pipeline-card">
               <p class="step-number">Step 05</p>
@@ -161,7 +161,7 @@
           </div>
           <div class="t-dropdown" id="info-map" data-origin="top-right">
             <h4>Map Overlay Interpretation</h4>
-            <p><strong>Total Crime Rate</strong>: Choropleth showing crimes per 1,000 residents.<br/><strong>Dominant Function</strong>: The primary land-use class classified via computer vision.<br/><strong>Coverage</strong>: Visual indicators showing where image data is matched.</p>
+            <p><strong>Total Crime Rate</strong>: Annualized recorded incidents per 1,000 residents, averaged over Jan 2019–Jun 2025 and normalized with mean 2019–2022 population.<br/><strong>Dominant Function</strong>: The primary land-use class classified via computer vision.<br/><strong>Coverage</strong>: Visual indicators showing where image data is matched.</p>
           </div>
           <div id="mapCanvas"></div>
           <div id="mapLegend" class="map-legend" role="legend"></div>
@@ -438,7 +438,7 @@
           </div>
           <div class="t-dropdown" id="info-simulator" data-origin="top-right">
             <h4>Regression Modeling Simulator</h4>
-            <p>This tool utilizes multi-variable linear regression coefficients to predict how modifying environmental features impacts crime rates. The baseline is the sample mean. Moving sliders recalculates the standardized expected outcome, demonstrating the relative leverage of each variable.</p>
+            <p>This exploratory tool uses multivariable linear regression coefficients to show how selected environmental values change a model-based expected outcome. It is not a causal intervention or policy prediction.</p>
           </div>
           <div class="sim-layout-grid">
             <!-- Left Column: Visual results (Main Focus) -->
