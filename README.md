@@ -102,10 +102,10 @@ Correlation, zone comparison, diagnostics, and dashboard
 │   ├── app.js                  # Charts, map, interactions, and simulator
 │   ├── analysis_summary.js     # Dashboard analysis payload
 │   └── map_payload.js          # Dashboard map payload
-├── LSOA_data/                 # London LSOA boundary files
+├── LSOA_data/                  # London LSOA boundary files
 ├── Processing data/            # Processed crime, imagery, and feature tables
-├── Part0_DataPrep_SVI.ipynb   # Grid, imagery, SegFormer, and UrbanCLIP workflow
-├── Part1_Main_Analysis.ipynb  # LSOA aggregation and statistical analysis
+├── Part0_DataPrep_SVI.ipynb    # Grid, imagery, SegFormer, and UrbanCLIP workflow
+├── Part1_Main_Analysis.ipynb   # LSOA aggregation and statistical analysis
 ├── transit.ipynb               # Supplementary browser/PDF workflow
 ├── Practical Briefing.docx     # Written project briefing
 ├── environment.yml             # Conda environment specification
