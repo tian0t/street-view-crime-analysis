@@ -615,8 +615,8 @@ function renderZones() {
   if (!zoneCards) return;
   zoneCards.innerHTML = data.zone_cards.map((z, idx) => {
     const ratioText = z.relative_total_index >= 1.0 
-      ? `<strong class="text-highlight">+${((z.relative_total_index - 1)*100).toFixed(0)}%</strong> vs city avg` 
-      : `<strong class="text-highlight">-${((1 - z.relative_total_index)*100).toFixed(0)}%</strong> vs city avg`;
+      ? `<strong class="text-highlight">+${((z.relative_total_index - 1)*100).toFixed(0)}%</strong> vs merged-LSOA avg`
+      : `<strong class="text-highlight">-${((1 - z.relative_total_index)*100).toFixed(0)}%</strong> vs merged-LSOA avg`;
       
     // Build details table
     const tableRows = z.top_crime_mix.slice(0, 4).map(x => `
@@ -761,8 +761,9 @@ function updateEvidenceChart() {
       opacity: 0.8,
       line: { width: 1.5, color: markerBorderColor },
     },
+    customdata: rows.map((r) => r.n),
     textfont: {color: textColor, size: 10},
-    hovertemplate: "Feature: <b>%{text}</b><br>Correlation: %{x:.3f}<br>-log10(p): %{y:.2f}<br>LSOAs: %{marker.size}<extra></extra>",
+    hovertemplate: "Feature: <b>%{text}</b><br>Correlation: %{x:.3f}<br>-log10(p): %{y:.2f}<br>LSOAs: %{customdata}<extra></extra>",
   }], {
     ...getPlotLayout(),
     xaxis: { ...(getPlotLayout()).xaxis, title: "Pearson Correlation Coefficient", zeroline: true },
